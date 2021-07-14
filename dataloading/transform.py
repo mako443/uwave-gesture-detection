@@ -38,30 +38,54 @@ def center_scale(data, scale_per_axis=False):
             data_scaled[gesture_name].append(centered_scaled)
     return data_scaled
 
+def polyfit_timeseries(data, deg=3):
+    data_poly = {gesture_name: [] for gesture_name in data}
+    for gesture_name in data:
+        for i_sample, sample in enumerate(data[gesture_name]):
+            poly = np.polynomial.polynomial.polyfit(np.arange(len(sample)), sample, deg=deg)
+            data_poly[gesture_name].append(poly.T.flatten()) # [x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3]
+
+    return data_poly
+
+def aggregate_data(data):
+    num_samples = np.sum([len(data[g]) for g in GESTURE_NAMES])
+    dim = len(data[GESTURE_NAMES[0]][0])
+    X = np.zeros((num_samples, dim), dtype=np.float)
+    y = np.zeros(num_samples, dtype=np.int)
+    
+    idx = 0
+    for i_class, gesture_name in enumerate(GESTURE_NAMES):
+        for sample in data[gesture_name]:
+            X[idx, :] = sample
+            y[idx] = i_class
+            idx += 1
+
+    return X, y
+
+def normalize_X(X, mean=None, std=None):
+    if mean is None and std is None:
+        mean = np.mean(X, axis=0)
+        std = np.std(X)
+        
+    X_normed = (X - mean) / std
+    return X_normed, mean, std
+
+def random_split(X, y, train_fraction=0.7):
+    assert len(X) == len(y)
+    test_fraction = 1.0 - train_fraction
+    indices_test = []
+    
+    # Sample the same fraction from each class to prevent (further) imbalance
+    for i_class in np.unique(y):
+        possible_indices = np.argwhere(y == i_class).flatten()
+        selected_indices = np.random.choice(possible_indices, size=int(test_fraction*len(possible_indices)), replace=False) # Select test indices to require less random samples
+        indices_test.extend(list(selected_indices))
+
+    # Get the "inverse" indices for training
+    slice_train = np.ones(len(X), dtype=np.bool)
+    slice_train[indices_test] = False
+    
+    return X[slice_train], y[slice_train], X[indices_test], y[indices_test]    
+
 if __name__ == '__main__':
-    with open('./data/uwave/uwave.pkl', 'rb') as f:
-        data = pickle.load(f)
-
-    # name, idx = 'hook', 0
-    # name, idx = 'box', 1
-    # name, idx = 'left2right', 2
-    # name, idx = 'top2bot', 5
-    name, idx = 'counter-clw', 7
-
-    num_visualize = 9
-    gestures = [GESTURE_NAMES[idx] for i in range(num_visualize)]
-    indices = np.random.randint(500, size=num_visualize)
-
-    data_normalized = normalize_vectors(data)
-    print(data_normalized[gestures[0]][0].dtype)
-    quit()
-
-    # data_normalized_integrated = integrate_acceleration(data_normalized)
-    # data_integrated = integrate_acceleration(data)
-    # data_normalized_integrated_scaled = center_scale(data_normalized_integrated)
-    # data_integrated_scaled = center_scale(data_integrated)
-
-    visualize_samples([data_normalized_integrated_scaled[gestures[i]][indices[i]] for i in range(num_visualize)], axes=(0, 1), save_path=f"plots/{name}_norm_integ_scale_01.png") 
-    visualize_samples([data_integrated_scaled[gestures[i]][indices[i]] for i in range(num_visualize)], axes=(0, 1), save_path=f"plots/{name}_integ_scale_01.png") 
-
-    # Assumption: axes 0-1 are the important ones, y-axis flipped for plotting, actual gesture is at the end of time-series
+    pass

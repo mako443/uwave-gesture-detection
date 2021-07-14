@@ -2,12 +2,10 @@
 
 # How to run
 - Download uWaveGestureLibrary.zip to ./data
-- Run python -m dataloading.extract_load.py to create ./data/uwave/uwave.pkl
-
-# Training
-
+- Run dataloading/prepare_explore.ipynb to create ./data/uwave/uwave.pkl and optionally plot some samples
 
 # TODO
+- Run training again
+- Docker and deploy to EBS
 - Github Action to EBS
-- Verify pep8 and test-set in action
-- 
+- Verify pep8 and test-set (S3) in action

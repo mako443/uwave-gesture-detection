@@ -51,14 +51,4 @@ def load_files(path):
     print(f'Loaded {count} files.')
 
     return all_data    
-
-if __name__ == '__main__':
-    path_in = './data/uWaveGestureLibrary.zip'
-    path_extract = './data/uwave/'
-
-    # extract_files(path_in, path_extract)
-
-    data = load_files(path_extract)
-    with open(osp.join(path_extract, 'uwave.pkl'), 'wb') as f:
-        pickle.dump(data, f)
     
