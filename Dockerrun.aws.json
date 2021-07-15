@@ -1,0 +1,21 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "authentication": {
+        "bucket": "imxdeploy",
+        "key": "dockercfg/.dockercfg2"
+    },
+    "containerDefinitions": [
+        {
+            "name": "uwave",
+            "image": "imxdev/uwave",
+            "memory": 128,
+            "hostname": "uwave",
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ]
+        }
+    ]
+}
