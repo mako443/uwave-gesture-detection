@@ -10,7 +10,13 @@ import numpy as np
 
 from dataloading.imports import GESTURE_NAMES
 
-def extract_files(path_in, path_extract):
+def extract_files(path_in: str, path_extract: str):
+    """Extract the uWave .zip file and each contained .rar file.
+
+    Args:
+        path_in (str): Input filepath
+        path_extract (str): Output folder path
+    """
     assert osp.isfile(path_in)
 
     with zipfile.ZipFile(path_in, 'r') as f:
@@ -28,6 +34,15 @@ def extract_files(path_in, path_extract):
         os.remove(osp.join(path_extract, filename))
 
 def load_files(path):
+    """Load all files extracted with extract_files() into a dictionary.
+
+    Args:
+        path (str): Input folder path
+
+    Returns:
+        dict: Data dictionary with {gesture_name: [data0, data1, ...]}
+    """
+
     all_data = {g: [] for g in GESTURE_NAMES} # Data as {gesture_name: [series0, series1, ...]}
 
     count = 0

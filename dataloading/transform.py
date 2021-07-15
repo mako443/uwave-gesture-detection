@@ -5,9 +5,16 @@ import pickle
 import numpy as np
 
 from dataloading.imports import GESTURE_NAMES
-from dataloading.visualize import visualize_samples
 
 def normalize_vectors(data):
+    """Normalize each acceleration vector to uniform magnitude.
+
+    Args:
+        data (dict): Data dictionary
+
+    Returns:
+        data: New data dictionary with normalized vectors
+    """
     data_normalized = {gesture_name: [] for gesture_name in data}
     for gesture_name in data:
         for i in range(len(data[gesture_name])):
@@ -17,6 +24,14 @@ def normalize_vectors(data):
     return data_normalized
 
 def integrate_acceleration(data):
+    """Integrate acceleartion to velocity.
+
+    Args:
+        data (dict): Data dictionary
+
+    Returns:
+        data: New data dictionary with velocity data.
+    """    
     data_integrated = {gesture_name: [] for gesture_name in data}
     for gesture_name in data:
         for i in range(len(data[gesture_name])):
@@ -25,6 +40,15 @@ def integrate_acceleration(data):
     return data_integrated
 
 def center_scale(data, scale_per_axis=False):
+    """TODO
+
+    Args:
+        data ([type]): [description]
+        scale_per_axis (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
     data_scaled = {gesture_name: [] for gesture_name in data}
     for gesture_name in data:
         for i in range(len(data[gesture_name])):
@@ -39,6 +63,15 @@ def center_scale(data, scale_per_axis=False):
     return data_scaled
 
 def polyfit_timeseries(data, deg=3):
+    """Fit a polynomial to a time-series to reduce feature dimension and to process time-series of different sizes.
+
+    Args:
+        data (dict): Data dictionary
+        deg (int, optional): Degree of the polynomial. Defaults to 3.
+
+    Returns:
+        dict: New data dictionary
+    """
     data_poly = {gesture_name: [] for gesture_name in data}
     for gesture_name in data:
         for i_sample, sample in enumerate(data[gesture_name]):
@@ -48,6 +81,15 @@ def polyfit_timeseries(data, deg=3):
     return data_poly
 
 def aggregate_data(data):
+    """Aggregate data from a dictionary to a combined feature matrix X and labels y.
+
+    Args:
+        data (dict): Data dictionary
+
+    Returns:
+        np.ndarray: Feature matrix
+        np.ndarray: Label vector
+    """
     num_samples = np.sum([len(data[g]) for g in GESTURE_NAMES])
     dim = len(data[GESTURE_NAMES[0]][0])
     X = np.zeros((num_samples, dim), dtype=np.float)
@@ -63,6 +105,16 @@ def aggregate_data(data):
     return X, y
 
 def normalize_X(X, mean=None, std=None):
+    """TODO
+
+    Args:
+        X ([type]): [description]
+        mean ([type], optional): [description]. Defaults to None.
+        std ([type], optional): [description]. Defaults to None.
+
+    Returns:
+        [type]: [description]
+    """
     if mean is None and std is None:
         mean = np.mean(X, axis=0)
         std = np.std(X)
@@ -71,6 +123,20 @@ def normalize_X(X, mean=None, std=None):
     return X_normed, mean, std
 
 def random_split(X, y, train_fraction=0.7):
+    """Split (X, y) data randomly into a training and testing set.
+    The split is performed class-wise so that no additional imbalance is created.
+
+    Args:
+        X (np.ndarray): Feature matrix
+        y (np.ndarray): Label vector
+        train_fraction (float, optional): Fraction of data to use for training. Defaults to 0.7.
+
+    Returns:
+        np.ndarray: Feature matrix for training
+        np.ndarray: Label vector for training
+        np.ndarray: Feature matrix for testing
+        np.ndarray: Label vector for testing
+    """
     assert len(X) == len(y)
     test_fraction = 1.0 - train_fraction
     indices_test = []

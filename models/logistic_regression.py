@@ -1,6 +1,9 @@
 import numpy as np
 
 class LogisticRegression:
+    """Logistic regression classifier implemented in pure numpy.
+    """
+
     def __init__(self, lr=0.01, reg=0.001, max_iter=1000, tol=1e-4):
         self.lr = lr
         self.reg = reg
