@@ -1,0 +1,34 @@
+name: Deploy Container
+on:
+  push:
+    braches:
+    - master
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Docker login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u imxdev --password-stdin        
+        
+      - name: Docker build
+        run: docker build -t imxdev/uwave .
+        
+      - name: Docker push
+        run: docker push imxdev/uwave
+        
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v16
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: MyApplicationName
+          environment_name: MyApplication-Environment
+          version_label: 12345
+          region: us-west-2
+          deployment_package: deploy.zip        
+        
+        
